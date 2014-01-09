@@ -12,11 +12,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+# Modified by Astun Technology
+
 from connection_manager import ConnectionManager
 from query import Query
 from assertion import Assertion
 
-__version__ = '0.6'
+__version__ = '0.6-at'
 
 class DatabaseLibrary(ConnectionManager, Query, Assertion):
     """

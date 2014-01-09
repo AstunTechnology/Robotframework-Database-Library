@@ -14,6 +14,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+#  Modified by Astun Technology
 
 """Setup script for Robot's DatabaseLibrary distributions"""
 
@@ -28,9 +29,9 @@ def main():
     setup(name         = 'robotframework-databaselibrary',
           version      = __version__,
           description  = 'Database utility library for Robot Framework',
-          author       = 'Franz Allan Valencia See',
-          author_email = 'franz.see@gmail.com',
-          url          = 'https://github.com/franz-see/Robotframework-Database-Library',
+          author       = 'Astun Technology',
+          author_email = 'github@astuntechnology.com',
+          url          = 'https://github.com/AstunTechnology/Robotframework-Database-Library',
           package_dir  = { '' : 'src'},
           packages     = ['DatabaseLibrary']
           )
