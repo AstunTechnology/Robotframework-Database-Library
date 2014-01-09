@@ -58,6 +58,27 @@ class Query(object):
         finally :
             if cur :
                 self._dbconnection.rollback() 
+                
+    def get_result(self, functionName, *args):
+        """ 
+        Calls function `functionName` with any extra arguments and returns
+        the result. This is not intended for use with functions that return a
+        recordset or table (use `query` for those).
+        
+        For example, calling the standard `version` function in PostgreSQL:
+        | ${ver} | Get Result | version |
+        | Log | ${ver} |
+        
+        You will get something like:
+        9.2.6
+        """
+        arguments = ''
+        if args:
+            arguments = ', '.join(args)
+            
+        selectStatement = 'SELECT {}({});'.format(functionName, arguments)
+        return self.query(selectStatement)[0][0]
+        
 
     def row_count(self, selectStatement):
         """
