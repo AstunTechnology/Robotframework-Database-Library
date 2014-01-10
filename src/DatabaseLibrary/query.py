@@ -115,17 +115,19 @@ class Query(object):
             if cur :
                 self._dbconnection.rollback()
 
-    def description(self, selectStatement):
+
+    def describe_data(self, selectStatement):
         """
-        Uses the input `selectStatement` to query a table in the db which
-        will be used to determine the description.
+        Describes the columns in the dataset resulting from `selectStatement`.
+
+        *Note*: ` LIMIT 0` will be appended to the provided statement.
 
         For example, given we have a table `person` with the following data:
         | id | first_name  | last_name |
         |  1 | Franz Allan | See       |
 
         When you do the following:
-        | @{queryResults} | Description | select * from person |
+        | @{queryResults} | Describe Data | select * from person |
         | Log Many | @{queryResults} |
 
         You will get the following:
@@ -134,6 +136,9 @@ class Query(object):
         [Column(name='last_name', type_code=1043, display_size=None, internal_size=255, precision=None, scale=None, null_ok=None)]
         """
         cur = None
+        if selectStatement.endswith(';'):
+            selectStatement = selectStatement.rstrip(';')
+        selectStatement = '{} LIMIT 0;'.format(selectStatement)
         try:
             cur = self._dbconnection.cursor()
             self.__execute_sql(cur, selectStatement)
@@ -142,6 +147,28 @@ class Query(object):
         finally :
             if cur :
                 self._dbconnection.rollback()
+
+
+    def describe_table(self, tableName):
+        """
+        Describes the columns in table `tableName`.
+
+        For example, given we have a table `person` with the following data:
+        | id | first_name  | last_name |
+        |  1 | Franz Allan | See       |
+
+        When you do the following:
+        | @{queryResults} | Describe Table | person |
+        | Log Many | @{queryResults} |
+
+        You will get the following:
+        [Column(name='id', type_code=1043, display_size=None, internal_size=255, precision=None, scale=None, null_ok=None)]
+        [Column(name='first_name', type_code=1043, display_size=None, internal_size=255, precision=None, scale=None, null_ok=None)]
+        [Column(name='last_name', type_code=1043, display_size=None, internal_size=255, precision=None, scale=None, null_ok=None)]
+        """
+        statement = 'SELECT * FROM {};'.format(tableName)
+        return self.describe_data(statement)
+
 
     def delete_all_rows_from_table(self, tableName):
         """
