@@ -1,19 +1,23 @@
-= DatabaseLibrary for Robot Framework
-== Description
-Database Library contains utilities meant for Robot Framework's usage. This can allow you to query your database after an action has been made to verify the results. This is compatible* with any Database API Specification 2.0 module. 
+DatabaseLibrary for Robot Framework
+===================================
 
-http://franz-see.github.com/Robotframework-Database-Library/
-== Branches
+Description
+------------
+Database Library contains utilities meant for Robot Framework's usage. This can allow you to query your database after an action has been made to verify the results. This is compatible* with any Database API Specification 2.0 module.
+
+Branches
+--------
 1. **master ** - fixes, improvements to [original library][1]
-1. **extra-actions** - enhanced version with additional actions 
+1. **extra-actions** - enhanced version with additional actions
 
-== API ==
+API
+---
 See [Franz See's site][2]  for core API documentation
 
-=== API changes
 *TODO*
 
-== License
+License
+-------
 As per the original:
 ```
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,6 +34,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ```
 
-== Links
+Links
+-----
 [1]: franz-see/Robotframework-Database-Library
 [2]: http://franz-see.github.io/Robotframework-Database-Library/
