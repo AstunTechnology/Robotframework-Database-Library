@@ -14,10 +14,21 @@
 
 from robot.api import logger
 
+
 class Query(object):
     """
     Query handles all the querying done by the Database Library.
     """
+
+    def __run_query(self, selectStatement):
+        cur = None
+        try:
+            cur = self._dbconnection.cursor()
+            self.__execute_sql(cur, selectStatement)
+            return cur.fetchall(), cur.rowcount, cur.description
+        finally :
+            if cur :
+                self._dbconnection.rollback()
 
     def query(self, selectStatement):
         """
@@ -49,15 +60,9 @@ class Query(object):
         And get the following
         See, Franz Allan
         """
-        cur = None
-        try:
-            cur = self._dbconnection.cursor()
-            self.__execute_sql(cur, selectStatement)
-            allRows = cur.fetchall()
-            return allRows
-        finally :
-            if cur :
-                self._dbconnection.rollback()
+        results, __, __ = self.__run_query(selectStatement)
+        return results
+
 
     def call_function(self, functionName, *args):
         """
@@ -80,7 +85,7 @@ class Query(object):
         return self._get_single_result(selectStatement)
 
 
-    def row_count(self, selectStatement):
+    def count_rows_in_query(self, selectStatement):
         """
         Uses the input `selectStatement` to query the database and returns
         the number of rows from the query.
@@ -91,29 +96,44 @@ class Query(object):
         |  2 | Jerry       | Schneider |
 
         When you do the following:
-        | ${rowCount} | Row Count | select * from person |
+        | ${rowCount} | Count Rows In Query | select * from person |
         | Log | ${rowCount} |
 
         You will get the following:
         2
 
         Also, you can do something like this:
-        | ${rowCount} | Row Count | select * from person where id = 2 |
+        | ${rowCount} | Count Rows In Query | select * from person where id = 2 |
         | Log | ${rowCount} |
 
         And get the following
         1
         """
+        __, count, __ = self.__run_query(selectStatement)
+        return count
+
+
+    def count_rows_in_table(self, tableName):
+        """
+        Uses the input table `tableName` to query the database and returns
+        the number of rows in the table.
+
+        For example, given we have a table `person` with the following data:
+        | id | first_name  | last_name |
+        |  1 | Franz Allan | See       |
+        |  2 | Jerry       | Schneider |
+
+        When you do the following:
+        | ${rowCount} | Count Rows In Table | person |
+        | Log | ${rowCount} |
+
+        You will get the following:
+        2
+
+        """
         cur = None
-        try:
-            cur = self._dbconnection.cursor()
-            self.__execute_sql(cur, selectStatement)
-            cur.fetchall()
-            rowCount = cur.rowcount
-            return rowCount
-        finally :
-            if cur :
-                self._dbconnection.rollback()
+        selectStatement = 'SELECT count(*) FROM {};'.format(tableName)
+        return self._get_single_result(selectStatement)
 
 
     def describe_data(self, selectStatement):
@@ -139,14 +159,9 @@ class Query(object):
         if selectStatement.endswith(';'):
             selectStatement = selectStatement.rstrip(';')
         selectStatement = '{} LIMIT 0;'.format(selectStatement)
-        try:
-            cur = self._dbconnection.cursor()
-            self.__execute_sql(cur, selectStatement)
-            description = cur.description
-            return description
-        finally :
-            if cur :
-                self._dbconnection.rollback()
+
+        __, __, description = self.__run_query(selectStatement)
+        return description
 
 
     def describe_table(self, tableName):
