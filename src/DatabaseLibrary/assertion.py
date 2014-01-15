@@ -12,6 +12,10 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+# Modified by Astun Technology
+
+from robot.api import logger
+
 class Assertion(object):
     """
     Assertion handles all the assertions of Database Library.
@@ -58,11 +62,12 @@ class Assertion(object):
         | Query Should Not Return Rows | select id from person where first_name = 'Franz Allan' | # FAIL |
         | Query Should Not Return Rows | select id from person where first_name = 'John' | # PASS |
         """
-        results, count, __ = self.__run_query(selectStatement)
+        results, count, __ = self._run_query(selectStatement)
         if (count > 0):
-            raise AssertionError("Expected no results to be returned from '%s'. "
-                                 "Actually returned: %s\n (%s results)" %
-                                 (selectStatement, results, count))
+            logger.info('Query Should Not Return Rows actually returned:\n'
+                        '{}'.format(results))
+            raise AssertionError('Returned {} results when none expected from '
+                                 '`{}`. '.format(count, selectStatement))
 
 
     def query_rows_should_equal(self, selectStatement, numRows):

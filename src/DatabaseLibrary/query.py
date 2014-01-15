@@ -12,6 +12,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+# Modified by Astun Technology
+
 from robot.api import logger
 
 
@@ -20,7 +22,7 @@ class Query(object):
     Query handles all the querying done by the Database Library.
     """
 
-    def __run_query(self, selectStatement):
+    def _run_query(self, selectStatement):
         cur = None
         try:
             cur = self._dbconnection.cursor()
@@ -60,7 +62,7 @@ class Query(object):
         And get the following
         See, Franz Allan
         """
-        results, __, __ = self.__run_query(selectStatement)
+        results, __, __ = self._run_query(selectStatement)
         return results
 
 
@@ -109,7 +111,7 @@ class Query(object):
         And get the following
         1
         """
-        __, count, __ = self.__run_query(selectStatement)
+        __, count, __ = self._run_query(selectStatement)
         return count
 
 
@@ -160,7 +162,7 @@ class Query(object):
             selectStatement = selectStatement.rstrip(';')
         selectStatement = '{} LIMIT 0;'.format(selectStatement)
 
-        __, __, description = self.__run_query(selectStatement)
+        __, __, description = self._run_query(selectStatement)
         return description
 
 
