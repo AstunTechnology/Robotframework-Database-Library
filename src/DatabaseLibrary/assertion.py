@@ -64,8 +64,8 @@ class Assertion(object):
         """
         results, count, __ = self._run_query(selectStatement)
         if (count > 0):
-            logger.info('Query Should Not Return Rows actually returned:\n'
-                        '{}'.format(results))
+            logger.info('Query Should Not Return Rows actually returned {} rows:\n'
+                        '{}'.format(count, results))
             raise AssertionError('Returned {} results when none expected from '
                                  '`{}`. '.format(count, selectStatement))
 
