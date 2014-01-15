@@ -329,3 +329,10 @@ class Query(object):
 
     def _get_single_result(self, selectStatement):
         return self.query(selectStatement)[0][0]
+
+    def _value_to_text(self, value):
+        """
+        returns the value of a keyword argument as a SQL text type
+        """
+        return "'{}'::text".format(value)
+
