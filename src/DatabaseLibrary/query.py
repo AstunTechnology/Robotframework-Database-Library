@@ -115,9 +115,9 @@ class Query(object):
         return count
 
 
-    def count_rows_in_table(self, tableName):
+    def count_rows_in_table(self, table, schema='public'):
         """
-        Uses the input table `tableName` to query the database and returns
+        Uses the input `table` to query the database and returns
         the number of rows in the table.
 
         For example, given we have a table `person` with the following data:
@@ -134,7 +134,8 @@ class Query(object):
 
         """
         cur = None
-        selectStatement = 'SELECT count(*) FROM {};'.format(tableName)
+        selectStatement = 'SELECT count(*) FROM "{}"."{}";'.format(schema,
+                                                                   table)
         return self._get_single_result(selectStatement)
 
 
@@ -166,11 +167,11 @@ class Query(object):
         return description
 
 
-    def describe_table(self, tableName):
+    def describe_table(self, table, schema='public'):
         """
-        Describes the columns in table `tableName`.
+        Describes the columns in (`schema`.)`table`
 
-        For example, given we have a table `person` with the following data:
+        For example, given we have a table _person_ with the following data:
         | id | first_name  | last_name |
         |  1 | Franz Allan | See       |
 
@@ -183,11 +184,11 @@ class Query(object):
         [Column(name='first_name', type_code=1043, display_size=None, internal_size=255, precision=None, scale=None, null_ok=None)]
         [Column(name='last_name', type_code=1043, display_size=None, internal_size=255, precision=None, scale=None, null_ok=None)]
         """
-        statement = 'SELECT * FROM {};'.format(tableName)
+        statement = 'SELECT * FROM "{}"."{}";'.format(schema, table)
         return self.describe_data(statement)
 
 
-    def delete_all_rows_from_table(self, tableName):
+    def delete_all_rows_from_table(self, table, schema='public'):
         """
         Delete all the rows within a given table.
 
@@ -203,7 +204,7 @@ class Query(object):
         | Delete All Rows From Table | first_name | # FAIL |
         """
         cur = None
-        selectStatement = ("delete from %s;" % tableName)
+        selectStatement = ('DELETE FROM from "{}"."{}";' % schema, table)
         try:
             cur = self._dbconnection.cursor()
             result = self.__execute_sql(cur, selectStatement)
