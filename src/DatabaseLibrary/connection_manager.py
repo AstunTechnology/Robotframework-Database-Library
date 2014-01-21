@@ -71,6 +71,7 @@ class ConnectionManager(object):
         dbPort = int(dbPort or config.get('default', 'dbPort') or 5432)
 
         db_api_2 = __import__(dbapiModuleName)
+        self._db_api_2 = db_api_2
         if dbapiModuleName in ["MySQLdb", "pymysql"]:
             dbPort = dbPort or 3306
             logger.debug ('Connecting using : %s.connect(db=%s, user=%s, passwd=%s, host=%s, port=%s) ' % (dbapiModuleName, dbName, dbUsername, dbPassword, dbHost, dbPort))
@@ -96,6 +97,7 @@ class ConnectionManager(object):
         | Connect To Database Using Custom Params | JayDeBeApi | 'oracle.jdbc.driver.OracleDriver', 'my_db_test', 'system', 's3cr3t' |
         """
         db_api_2 = __import__(dbapiModuleName)
+        self._db_api_2 = db_api_2
 
         db_connect_string = 'db_api_2.connect(%s)' % db_connect_string
 
