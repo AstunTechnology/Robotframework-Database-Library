@@ -26,8 +26,21 @@ class Query(object):
         cur = None
         try:
             cur = self._dbconnection.cursor()
+            if hasattr(self, '_fetchsize'):
+                cur.arraysize = self._fetchsize
+            else:
+                cur.arraysize = 100
             self.__execute_sql(cur, selectStatement)
-            return cur.fetchall(), cur.rowcount, cur.description
+            logger.debug('{} results'.format(cur.rowcount))
+            results = []
+            fetch = True
+            while fetch:
+                fetched = cur.fetchmany()
+                if fetched:
+                    results = results + fetched
+                else:
+                    fetch = False
+            return results, cur.rowcount, cur.description
         finally :
             if cur :
                 self._dbconnection.rollback()

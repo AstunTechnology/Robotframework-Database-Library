@@ -142,7 +142,9 @@ class Assertion(object):
             raise AssertionError("Expected fewer rows to be returned from '%s' "
                                  "than the returned count of %s" % (selectStatement, num_rows))
 
-    def table_must_exist(self,tableName):
+
+
+    def table_must_exist(self, tableName):
         """
         Check if the table given exists in the database.
 
@@ -158,6 +160,180 @@ class Assertion(object):
         selectStatement = ("select * from information_schema.tables where table_name='%s'" % tableName)
         num_rows = self.count_rows_in_query(selectStatement)
         if (num_rows == 0):
-            raise AssertionError("Table '%s' does not exist in the db" % tableName)
+            raise AssertionError("Table '%s' does not exist in the database" % tableName)
+
+
+    def table_must_not_exist(self, tableName):
+        """
+        Check if the table given does not exist in the database
+
+        For example, given we have a table `person` in a database
+
+        When you do the following:
+        | Table Must Not Exist | person |
+
+        Then you will get the following:
+        | Table Must Not Exist | person | # FAIL |
+        | Table Must Not Exist | first_name | # PASS |
+        """
+        selectStatement = ("select * from information_schema.tables where table_name='%s'" % tableName)
+        num_rows = self.count_rows_in_query(selectStatement)
+        if (num_rows > 0):
+            raise AssertionError("Table '%s' exists in the database" % tableName)
+
+
+    def table_rows_should_equal(self, tableName, numRows, schema='public'):
+        """
+        Checks that rows in `tableName` results are equal to `numRows`
+
+        If not, then this will throw an AssertionError.
+
+        For example, given we have a table `person` with the following data:
+        | id | first_name  | last_name |
+        |  1 | Franz Allan | See       |
+        |  2 | Jerry       | Schneider |
+
+        When you have the following assertions in your robot
+        | Table Rows Should Equal | person | 2 |
+        | Table Rows Should Equal | person | 1 |
+
+        Then you will get the following:
+        | Table Rows Should Equal | person | 2 | # PASS |
+        | Table Rows Should Equal | person | 1 | # FAIL |
+        """
+        num_rows = self.count_rows_in_table(tableName, schema=schema)
+        if (num_rows != int(numRows.encode('ascii'))):
+            raise AssertionError('Expected %s rows to be returned from "%s".%s" '
+                                 'not the returned count of %s' % (numRows, schema, tableName, num_rows))
+
+
+    def table_rows_should_be_more(self, tableName, numRows, schema='public'):
+        """
+        Checks that rows in `tableName` results are more than `numRows`
+
+        If not, then this will throw an AssertionError.
+
+        For example, given we have a table `person` with the following data:
+        | id | first_name  | last_name |
+        |  1 | Franz Allan | See       |
+        |  2 | Jerry       | Schneider |
+
+        When you have the following assertions in your robot
+        | Table Rows Should Be More | person | 1 |
+        | Table Rows Should Be More | person | 2 |
+
+        Then you will get the following:
+        | Table Rows Should Be More | select id from person | 1 | # PASS |
+        | Table Rows Should Be More | select id from person | 2 | # FAIL |
+        """
+        num_rows = self.count_rows_in_table(tableName, schema=schema)
+        if (num_rows <= int(numRows.encode('ascii'))):
+            raise AssertionError('Expected more than %s rows to be returned '
+                                 'from "%s"."%s".\nThe returned count was %s' %
+                                 (numRows, schema, tableName, num_rows))
+
+
+    def table_rows_should_be_fewer(self, tableName, numRows, schema='public'):
+        """
+        Checks that rows in `tableName` results are fewer than `numRows`
+
+        If not, then this will throw an AssertionError.
+
+        For example, given we have a table `person` with the following data:
+        | id | first_name  | last_name |
+        |  1 | Franz Allan | See       |
+        |  2 | Jerry       | Schneider |
+
+        When you have the following assertions in your test:
+        | Table Rows Should Be Fewer | person | 3 |
+        | Table Rows Should Be Fewer | person | 2 |
+
+        Then you will get the following:
+        | Table Rows Should Be Fewer | person | 3 | # PASS |
+        | Table Rows Should Be Fewer | person | 2 | # FAIL |
+        """
+        num_rows = self.count_rows_in_table(tableName, schema=schema)
+        if (num_rows >= int(numRows.encode('ascii'))):
+            raise AssertionError('Expected fewer than %s rows to be returned '
+                                 'from "%s"."%s".\nThe returned count was %s' %
+                                 (numRows, schema, tableName, num_rows))
+
+
+    def table_must_have_column(self, tableName, columnName, schema='public'):
+        """
+        Checks that the `tableName` has column `columnName`
+
+        For example, given we have a table `person` with the following data:
+        | id | first_name  | last_name |
+        |  1 | Franz Allan | See       |
+        |  2 | Jerry       | Schneider |
+
+        When you have the following assertions in your test:
+        | Table Must Have Column | person | first_name |
+        | Table Must Have Column | person | surname    |
+
+        Then you should get the following:
+        | Table Must Have Column | person | first_name | #FAIL |
+        | Table Must Have Column | person | surname    | #PASS |
+
+        """
+        sql = '''
+        SELECT count(*)
+        FROM information_schema.columns
+        WHERE table_schema = '%s'
+        AND table_name='%s'
+        AND column_name='%s';
+        ''' % (schema, tableName, columnName)
+        count = self.count_rows_in_query(sql)
+        if (count == 0):
+            raise AssertionError('Column "%s" not found in "%s"."%s"'
+                                 ) % (columnName, schema, tableName)
+        if (count > 1):
+            raise AssertionError('More than one column "%s" found in "%s"."%s"'
+                                 ) % (columnName, schema, tableName)
+
+
+
+    def table_must_have_columns(self, tableName, columnNames, schema='public'):
+        """
+        `tableName` must have all the columns in the `columnNames` list
+
+        `columnNames` must be a list of column names, separated by commas.
+
+
+        For example, given we have a table `person` with the following data:
+        | id | first_name  | last_name |
+        |  1 | Franz Allan | See       |
+        |  2 | Jerry       | Schneider |
+
+        When you have the following assertions in your test:
+        | Table Must Have Columns | person | id, first_name      |
+        | Table Must Have Columns | person | first_name, surname |
+
+        Then you should get the following:
+        | Table Must Have Columns | person | id, first_name      | #FAIL |
+        | Table Must Have Columns | person | first_name, surname | #PASS |
+
+        """
+        columns = [c.strip() for c in columnNames.split(',')]
+
+        sql = '''
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_schema = '%s'
+        AND table_name='%s'
+        AND column_name IN ('%s');
+        ''' % (schema, tableName, "', '".join(columns))
+        results, count, __ = self._run_query(sql)
+        expected = len(columns)
+        if (count != expected):
+            raise AssertionError('Columns (%s) not all found in "%s"."%s".'
+            'Columns returned: %s') % (columnNames, schema, tableName,
+                                       ', '.join(results[0]))
+
+    def table_column_must_be_unique(self, tableName, columnName, schema='public'):
+        """
+        """
+        pass
 
 
