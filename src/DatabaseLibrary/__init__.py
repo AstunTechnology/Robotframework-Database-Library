@@ -12,9 +12,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from connection_manager import ConnectionManager
-from query import Query
-from assertion import Assertion
+from DatabaseLibrary.connection_manager import ConnectionManager
+from DatabaseLibrary.query import Query
+from DatabaseLibrary.assertion import Assertion
 
 __version__ = '0.6'
 
